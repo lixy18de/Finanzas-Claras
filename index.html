@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Finanzas Claras</title>
+<meta name="description" content="Control de gastos personales, offline e instalable.">
+<meta name="theme-color" content="#0B1210">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<div class="phone">
+  <div class="header">
+    <div class="brand">Finanzas <span>Claras</span></div>
+    <button class="install-btn" id="installBtn" hidden>+ Instalar</button>
+  </div>
+
+  <div class="vault-card">
+    <div class="vault-label">Balance disponible</div>
+    <div class="balance" id="balanceOut">$0.00</div>
+    <div class="dial-wrap">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="76" fill="none" stroke="#182720" stroke-width="12"/>
+        <circle id="dialArc" cx="90" cy="90" r="76" fill="none" stroke="#C9A227" stroke-width="12" stroke-linecap="round" stroke-dasharray="477.5" stroke-dashoffset="477.5" transform="rotate(-90 90 90)"/>
+      </svg>
+      <div class="dial-center">
+        <div class="dial-pct" id="goalPct">0%</div>
+        <div class="dial-goal" id="goalLabel">Meta: $500.00</div>
+      </div>
+    </div>
+    <button class="edit-goal-btn" id="editGoalBtn">Editar meta</button>
+  </div>
+
+  <div class="row">
+    <button class="quick-btn income" id="btnIncome">↑ Registrar ingreso</button>
+    <button class="quick-btn expense" id="btnExpense">↓ Registrar gasto</button>
+  </div>
+
+  <button class="cierre-btn" id="btnCierre">📊 Ver cierre del mes</button>
+
+  <div class="section-title">Resumen</div>
+  <div class="chart-card">
+    <div class="chart-tabs">
+      <button class="chart-tab active" data-view="week">Semana</button>
+      <button class="chart-tab" data-view="month">Mes (últimos 6)</button>
+    </div>
+    <div id="weeklyChart"></div>
+  </div>
+
+  <div class="section-title">Por categoría este mes</div>
+  <div id="catBars"><div class="empty">Aún no hay gastos registrados</div></div>
+
+  <div class="section-title">Movimientos recientes</div>
+  <div class="hint-text">Toca un movimiento para editarlo</div>
+  <div class="ledger" id="ledger">
+    <div class="empty">Agrega tu primer movimiento arriba</div>
+  </div>
+
+  <div class="footer-credit">Desarrollado por Lixy Dayana Gómez — Desarrolladora de Software</div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Registrar gasto</h3>
+    <div class="field">
+      <label>Monto</label>
+      <input type="number" id="mAmount" placeholder="0.00" step="0.01" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label>Fecha y hora</label>
+      <input type="datetime-local" id="mDate">
+    </div>
+    <div class="field" id="catField">
+      <label>Categoría</label>
+      <select id="mCategory">
+        <option>Comida</option>
+        <option>Transporte</option>
+        <option>Servicios</option>
+        <option>Entretenimiento</option>
+        <option>Salud</option>
+        <option>Otros</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Descripción</label>
+      <input type="text" id="mDesc" placeholder="Ej. Almuerzo con amigos">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" id="mCancel">Cancelar</button>
+      <button class="btn btn-save" id="mSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="goalModalBg">
+  <div class="modal">
+    <h3>Editar meta de ahorro</h3>
+    <div class="field">
+      <label>Nueva meta</label>
+      <input type="number" id="gAmount" placeholder="500.00" step="0.01" inputmode="decimal">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" id="gCancel">Cancelar</button>
+      <button class="btn btn-save" id="gSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="cierreModalBg">
+  <div class="modal">
+    <h3>Cierre de mes</h3>
+    <div id="cierreContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" id="cierreClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-holder" id="toastHolder"></div>
+
+<script src="./db.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
