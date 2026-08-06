@@ -71,6 +71,8 @@ function openEditModal(tx) {
 
 function closeModal() { modalBg.classList.remove('open'); }
 
+let pendingSaveData = null;
+
 async function saveTx() {
   const amt = parseFloat(document.getElementById('mAmount').value);
   const desc = document.getElementById('mDesc').value.trim() || (currentMode === 'expense' ? 'Gasto' : 'Ingreso');
@@ -78,6 +80,8 @@ async function saveTx() {
   if (!amt || amt <= 0) { showToast('Ingresa un monto válido'); return; }
   if (!dateVal) { showToast('Selecciona una fecha y hora'); return; }
   const cat = currentMode === 'expense' ? (document.getElementById('mCategory').value.trim() || 'Otros') : 'Ingreso';
+  const isoDate = new Date(dateVal).toISOString();
+  const txData = { amt, desc, cat, type: currentMode, date: isoDate };
 
   if (currentMode === 'expense') {
     const balance = transactions.reduce((s, t) => s + (t.type === 'income' ? t.amt : -t.amt), 0);
@@ -87,20 +91,23 @@ async function saveTx() {
       if (original) disponible -= (original.type === 'income' ? original.amt : -original.amt);
     }
     if (amt > disponible) {
-      const continuar = confirm(
-        `No tienes fondos suficientes.\n\nBalance disponible: ${money(disponible)}\nGasto que quieres registrar: ${money(amt)}\n\n¿Deseas registrarlo de todas formas?`
-      );
-      if (!continuar) return;
+      pendingSaveData = txData;
+      document.getElementById('fundsModalText').innerHTML =
+        `Tu balance disponible es <strong>${money(disponible)}</strong> y quieres registrar un gasto de <strong>${money(amt)}</strong>.<br><br>¿Deseas registrarlo de todas formas?`;
+      document.getElementById('fundsModalBg').classList.add('open');
+      return;
     }
   }
 
-  const isoDate = new Date(dateVal).toISOString();
+  await commitSave(txData);
+}
 
+async function commitSave(txData) {
   if (editingId) {
-    await updateTransaction({ id: editingId, amt, desc, cat, type: currentMode, date: isoDate });
+    await updateTransaction({ id: editingId, ...txData });
     showToast('Movimiento actualizado');
   } else {
-    await addTransaction({ amt, desc, cat, type: currentMode, date: isoDate });
+    await addTransaction(txData);
     showToast('Movimiento guardado');
   }
   closeModal();
@@ -342,6 +349,17 @@ document.getElementById('mSave').addEventListener('click', saveTx);
 document.getElementById('editGoalBtn').addEventListener('click', openGoalModal);
 document.getElementById('gCancel').addEventListener('click', closeGoalModal);
 document.getElementById('gSave').addEventListener('click', saveGoal);
+document.getElementById('fundsCancel').addEventListener('click', () => {
+  pendingSaveData = null;
+  document.getElementById('fundsModalBg').classList.remove('open');
+});
+document.getElementById('fundsContinue').addEventListener('click', async () => {
+  document.getElementById('fundsModalBg').classList.remove('open');
+  if (pendingSaveData) {
+    await commitSave(pendingSaveData);
+    pendingSaveData = null;
+  }
+});
 document.getElementById('btnCierre').addEventListener('click', openCierreModal);
 document.getElementById('cierreClose').addEventListener('click', closeCierreModal);
 document.querySelectorAll('.chart-tab').forEach(tab => {
