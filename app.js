@@ -78,6 +78,22 @@ async function saveTx() {
   if (!amt || amt <= 0) { showToast('Ingresa un monto válido'); return; }
   if (!dateVal) { showToast('Selecciona una fecha y hora'); return; }
   const cat = currentMode === 'expense' ? (document.getElementById('mCategory').value.trim() || 'Otros') : 'Ingreso';
+
+  if (currentMode === 'expense') {
+    const balance = transactions.reduce((s, t) => s + (t.type === 'income' ? t.amt : -t.amt), 0);
+    let disponible = balance;
+    if (editingId) {
+      const original = transactions.find(t => t.id === editingId);
+      if (original) disponible -= (original.type === 'income' ? original.amt : -original.amt);
+    }
+    if (amt > disponible) {
+      const continuar = confirm(
+        `No tienes fondos suficientes.\n\nBalance disponible: ${money(disponible)}\nGasto que quieres registrar: ${money(amt)}\n\n¿Deseas registrarlo de todas formas?`
+      );
+      if (!continuar) return;
+    }
+  }
+
   const isoDate = new Date(dateVal).toISOString();
 
   if (editingId) {
