@@ -18,7 +18,7 @@
 <div class="phone">
   <div class="header">
     <div class="brand">Finanzas <span>Claras</span></div>
-    <button class="install-btn" id="installBtn" hidden>+ Instalar</button>
+    <button class="install-btn" id="installBtn">+ Instalar</button>
   </div>
 
   <div class="vault-card">
@@ -78,14 +78,15 @@
     </div>
     <div class="field" id="catField">
       <label>Categoría</label>
-      <select id="mCategory">
+      <input type="text" id="mCategory" list="catList" placeholder="Selecciona o escribe una categoría">
+      <datalist id="catList">
         <option>Comida</option>
         <option>Transporte</option>
         <option>Servicios</option>
         <option>Entretenimiento</option>
         <option>Salud</option>
         <option>Otros</option>
-      </select>
+      </datalist>
     </div>
     <div class="field">
       <label>Descripción</label>
