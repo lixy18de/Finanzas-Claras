@@ -159,6 +159,13 @@ h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
 .btn-cancel{background:var(--card2);color:var(--muted);}
 .btn-save{background:var(--emerald);color:#EAF7F0;}
 
+.modal-bg-center{align-items:center;}
+.modal-warning{border-radius:20px;text-align:center;}
+.modal-warning .warn-icon{font-size:36px;margin-bottom:10px;}
+.modal-warning h3{margin-bottom:12px;}
+.modal-warning p{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:18px;}
+.modal-warning strong{color:var(--gold-soft);}
+
 .empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 0;}
 
 .toast-holder{position:fixed;bottom:24px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;z-index:20;}
