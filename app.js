@@ -77,7 +77,7 @@ async function saveTx() {
   const dateVal = document.getElementById('mDate').value;
   if (!amt || amt <= 0) { showToast('Ingresa un monto válido'); return; }
   if (!dateVal) { showToast('Selecciona una fecha y hora'); return; }
-  const cat = currentMode === 'expense' ? document.getElementById('mCategory').value : 'Ingreso';
+  const cat = currentMode === 'expense' ? (document.getElementById('mCategory').value.trim() || 'Otros') : 'Ingreso';
   const isoDate = new Date(dateVal).toISOString();
 
   if (editingId) {
@@ -209,7 +209,7 @@ function render() {
     ledgerEl.innerHTML = transactions.slice(0, 15).map(t => `
       <div class="tx">
         <div class="tx-left" data-id="${t.id}" role="button">
-          <div class="tx-icon">${catIcons[t.cat] || '📦'}</div>
+          <div class="tx-icon">${catIcons[t.cat] || '🏷️'}</div>
           <div>
             <div class="tx-name">${escapeHtml(t.desc)}</div>
             <div class="tx-date">${t.cat} · ${new Date(t.date).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })} · ${new Date(t.date).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}</div>
@@ -250,7 +250,7 @@ function render() {
           <span class="cat-bar-amt">${money(val)}</span>
         </div>
         <div class="cat-bar-track">
-          <div class="cat-bar-fill" style="width:${(val / maxVal * 100).toFixed(0)}%; background:${catColors[cat]}"></div>
+          <div class="cat-bar-fill" style="width:${(val / maxVal * 100).toFixed(0)}%; background:${catColors[cat] || '#7F9CF5'}"></div>
         </div>
       </div>
     `).join('');
@@ -337,23 +337,40 @@ document.querySelectorAll('.chart-tab').forEach(tab => {
   });
 });
 
+// Si la app ya se está ejecutando instalada (modo standalone), no mostramos el botón
+function isRunningStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+if (isRunningStandalone()) {
+  installBtn.hidden = true;
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  installBtn.hidden = false;
+  if (!isRunningStandalone()) installBtn.hidden = false;
 });
 
 installBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
+  if (!deferredPrompt) {
+    showToast('Para instalar, usa el menú del navegador (⋮) y elige "Instalar app"');
+    return;
+  }
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') showToast('Instalando Finanzas Claras…');
+  if (outcome === 'accepted') {
+    showToast('Instalando Finanzas Claras…');
+    installBtn.hidden = true;
+  } else {
+    showToast('Instalación cancelada');
+  }
   deferredPrompt = null;
-  installBtn.hidden = true;
 });
 
 window.addEventListener('appinstalled', () => {
   installBtn.hidden = true;
+  deferredPrompt = null;
   showToast('¡Instalada! Ya la tienes en tu pantalla de inicio');
 });
 
